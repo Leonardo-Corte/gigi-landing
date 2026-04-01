@@ -1,24 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function InstallPage() {
-  const [micDenied, setMicDenied] = useState(false);
   const [showDownloadConfirm, setShowDownloadConfirm] = useState(false);
-
-  const requestMicrophone = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      setMicDenied(false);
-    } catch {
-      setMicDenied(true);
-    }
-  };
-
-  useEffect(() => {
-    void requestMicrophone();
-  }, []);
 
   const handleDownloadClick = () => {
     setShowDownloadConfirm(true);
@@ -67,24 +53,6 @@ export default function InstallPage() {
           </div>
         </div>
       </main>
-
-      {micDenied && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black px-6">
-          <div className="max-w-xl text-center">
-            <p className="text-xl font-semibold text-white sm:text-2xl">
-              Senza microfono non potrai interagire con GIGI. Sei sicuro? L&apos;autorizzazione e
-              necessaria per il riconoscimento vocale.
-            </p>
-            <button
-              type="button"
-              onClick={() => void requestMicrophone()}
-              className="mt-8 rounded-full bg-white px-8 py-3 text-sm font-bold text-black transition hover:scale-105"
-            >
-              Riprova
-            </button>
-          </div>
-        </div>
-      )}
 
       {showDownloadConfirm && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/65 px-6">

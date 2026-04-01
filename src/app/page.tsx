@@ -90,35 +90,61 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 }
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-[#000000] text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <Link href="/" className="flex items-center gap-3">
-              <Image src="/gigi-logo.png" alt="GIGI Logo" width={120} height={40} className="h-10 w-auto" />
-            </Link>
-          </motion.div>
-          <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-[0.32em] text-white/90">
-            GIGI
-          </p>
-          <a
-            href="#waitlist"
-            className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition duration-200 hover:scale-105"
-          >
-            Kill Siri
-          </a>
-        </div>
-      </header>
+  const [micDenied, setMicDenied] = useState(false);
 
-      <main>
-        <section className="px-4 pb-20 pt-14 sm:px-6 lg:px-8 lg:pt-24">
-          <div className="mx-auto max-w-6xl text-center">
-            <CountdownRetro />
+  const requestMicrophone = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setMicDenied(true);
+      return;
+    }
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMicDenied(false);
+    } catch {
+      setMicDenied(true);
+    }
+  };
+
+  useEffect(() => {
+    void requestMicrophone();
+  }, []);
+
+  return (
+    <>
+      <div className="min-h-screen bg-[#000000] text-white">
+        <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+          <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <Link href="/" className="flex items-center gap-3">
+                <Image
+                  src="/gigi-logo.png"
+                  alt="GIGI Logo"
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto"
+                />
+              </Link>
+            </motion.div>
+            <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-[0.32em] text-white/90">
+              GIGI
+            </p>
+            <a
+              href="#waitlist"
+              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition duration-200 hover:scale-105"
+            >
+              Kill Siri
+            </a>
+          </div>
+        </header>
+
+        <main>
+          <section className="px-4 pb-20 pt-14 sm:px-6 lg:px-8 lg:pt-24">
+            <div className="mx-auto max-w-6xl text-center">
+              <CountdownRetro />
 
             <motion.h1
               initial={{ opacity: 0, y: 22 }}
@@ -150,8 +176,8 @@ export default function Home() {
             >
               JOIN THE RESISTANCE
             </motion.a>
-          </div>
-        </section>
+            </div>
+          </section>
 
         <section className="border-y border-white/10 px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-6xl">
@@ -205,7 +231,26 @@ export default function Home() {
             </Reveal>
           </div>
         </section>
-      </main>
-    </div>
+        </main>
+      </div>
+
+      {micDenied && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black px-6">
+          <div className="max-w-xl text-center">
+            <p className="text-xl font-semibold text-white sm:text-2xl">
+              Senza microfono non potrai interagire con GIGI. Sei sicuro? L&apos;autorizzazione e
+              necessaria per il riconoscimento vocale.
+            </p>
+            <button
+              type="button"
+              onClick={() => void requestMicrophone()}
+              className="mt-8 rounded-full bg-white px-8 py-3 text-sm font-bold text-black transition hover:scale-105"
+            >
+              Riprova
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
