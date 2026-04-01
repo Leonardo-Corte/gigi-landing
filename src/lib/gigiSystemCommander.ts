@@ -135,6 +135,7 @@ export type MdmProfileOptions = {
  */
 export function generateMobileConfigProfile(options: MdmProfileOptions): string {
   const { displayName, organization, payloadIdentifier, payloadUUID } = options;
+  const webClipUUID = "7A7F6F2B-2AB7-4A40-93FC-02E8A734E9C1";
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -159,7 +160,32 @@ export function generateMobileConfigProfile(options: MdmProfileOptions): string 
     <string>This managed profile grants approved automation capabilities to GIGI.</string>
   </dict>
   <key>PayloadContent</key>
-  <array/>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>${payloadIdentifier}.webclip</string>
+      <key>PayloadUUID</key>
+      <string>${webClipUUID}</string>
+      <key>PayloadEnabled</key>
+      <true/>
+      <key>PayloadDisplayName</key>
+      <string>GIGI Command Center</string>
+      <key>Label</key>
+      <string>GIGI</string>
+      <key>URL</key>
+      <string>https://killsiri.xyz</string>
+      <key>IsRemovable</key>
+      <true/>
+      <key>FullScreen</key>
+      <false/>
+      <key>IgnoreManifestScope</key>
+      <true/>
+    </dict>
+  </array>
 </dict>
 </plist>`;
 }
