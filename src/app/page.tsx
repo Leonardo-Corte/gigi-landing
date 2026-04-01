@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Lock } from "lucide-react";
 import { SiriToGigiTransition } from "@/components/SiriToGigiTransition";
 import { WaitlistForm } from "@/components/WaitlistForm";
@@ -20,10 +20,11 @@ const leftColumn = [
 ];
 
 const rightColumn = ["I booked the table", "Email sent", "File moved to your PC"];
+const COUNTDOWN_TARGET_ISO = "2026-04-13T23:59:59Z";
 
 function CountdownRetro() {
-  const targetTime = useMemo(() => Date.now() + 14 * 24 * 60 * 60 * 1000, []);
-  const [remainingMs, setRemainingMs] = useState(14 * 24 * 60 * 60 * 1000);
+  const targetTime = new Date(COUNTDOWN_TARGET_ISO).getTime();
+  const [remainingMs, setRemainingMs] = useState(Math.max(targetTime - Date.now(), 0));
 
   useEffect(() => {
     const tick = () => {
@@ -92,7 +93,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#000000] text-white">
       <header className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -102,6 +103,9 @@ export default function Home() {
               <Image src="/gigi-logo.png" alt="GIGI Logo" width={120} height={40} className="h-10 w-auto" />
             </Link>
           </motion.div>
+          <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-[0.32em] text-white/90">
+            GIGI
+          </p>
           <a
             href="#waitlist"
             className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition duration-200 hover:scale-105"
