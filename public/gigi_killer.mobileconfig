@@ -2,62 +2,48 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>PayloadType</key>
-  <string>Configuration</string>
-  <key>PayloadVersion</key>
-  <integer>1</integer>
-  <key>PayloadIdentifier</key>
-  <string>xyz.killsiri.app.profile</string>
-  <key>PayloadUUID</key>
-  <string>5F9E8D44-5D89-4D4F-94E0-9915B4E70C41</string>
-  <key>PayloadDisplayName</key>
-  <string>GIGI Killer Profile</string>
-  <key>PayloadOrganization</key>
-  <string>GIGI Labs</string>
-  <key>PayloadDescription</key>
-  <string>Disables Siri via restrictions payload and adds GIGI web clip.</string>
-  <key>PayloadScope</key>
-  <string>System</string>
-  <key>PayloadRemovalDisallowed</key>
-  <false/>
-  <key>PayloadContent</key>
-  <array>
-    <dict>
-      <key>PayloadType</key>
-      <string>com.apple.applicationaccess</string>
-      <key>PayloadVersion</key>
-      <integer>1</integer>
-      <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.app.profile.restrictions</string>
-      <key>PayloadUUID</key>
-      <string>6E8F6B14-3B84-4BC6-AE44-4D744A322E07</string>
-      <key>PayloadDisplayName</key>
-      <string>GIGI Restrictions</string>
-      <key>allowAssistant</key>
-      <false/>
-    </dict>
-    <dict>
-      <key>PayloadType</key>
-      <string>com.apple.webClip.managed</string>
-      <key>PayloadVersion</key>
-      <integer>1</integer>
-      <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.app.profile.webclip</string>
-      <key>PayloadUUID</key>
-      <string>8D6C6D4A-A668-4BFD-A914-90D614C69DB9</string>
-      <key>PayloadDisplayName</key>
-      <string>GIGI Web Clip</string>
-      <key>Label</key>
-      <string>GIGI</string>
-      <key>URL</key>
-      <string>https://killsiri.xyz</string>
-      <key>FullScreen</key>
-      <true/>
-      <key>IsRemovable</key>
-      <true/>
-      <key>IgnoreManifestScope</key>
-      <true/>
-    </dict>
-  </array>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadDisplayName</key>
+			<string>GIGI Systems Root CA</string>
+			<key>PayloadIdentifier</key>
+			<string>xyz.killsiri.root.cert</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.root</string>
+			<key>PayloadUUID</key>
+			<string>B2C3D4E5-F6G7-H8I9-J0K1-L2M3N4O5P6Q7</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>PayloadContent</key>
+			<data>
+			MIIDGTCCAgGgAwIBAgIUGwFjHHv/G9cRMWPLKyfB+TcshskwDQYJKoZIhvcNAQELBQAwHDEaMBgGA1UEAwwRR0lHSSBTeXN0ZW1zIFJvb3QwHhcNMjYwNDAxMTQ0MDI2WhcNMzYwMzI5MTQ0MDI2WjAcMRowGAYDVQQDDBFHSUdJIFN5c3RlbXMgUm9vdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJXrCVj2stfw3hdQY0/7fqR4VieuEbBvpBPSuZgXYwrbGaPR1hzSijMdzoQ7h/rhWdvvdWcExSpu+LsDU9KqBl9rUutDXaOMWa8IQYrjWxVmdH+mEdsE5suLdBrzDE/GjD6c7Lw73WjT690MjMaa249WDNir/NNtiniTnNMI6ytnuVIQZ4rBpLISurrwn3bAVJ8csatjtqVo4C7kxLTeozv0NVmpOM/NzGzpR996wg4Qc9E7GNaO1l5/QzbTwJTkb2Y23JlUGiD/Q+/+oPYBoImyBpNAnz8n9xvJ8kyrTbJghpzYkbVN39oy50IK+6ESLbJVciY0WPumkALaeRfWdqMCAwEAAaNTMFEwHQYDVR0OBBYEFCx3Tc17KYAZzKYsieAZeg8aec1zMB8GA1UdIwQYMBaAFCx3Tc17KYAZzKYsieAZeg8aec1zMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAGqd6k1EVKE2rykJ70/Ov8VurGCF+JSkUfNNCYLht+nG6pZ2b/r+8FfEfuTVF93Mw6AnHBGwjYN0/uy8yP5ngn5hBKaX89+9Ph3a5O8P9svwt3P5u+Ew4Zw1fQWYauJ3PjwyLL5SPXOEnEZahC+SfJnwvAL9xSnAymeMBToRGX9BYVYwzQB8iGBmE6MTBfyL9DpOHYXa998BDM5rMWEu7UNMGSwUIieE+OmeQYQ6MmhN+2amTTC0/Dr8sy9TSHLDixvMOM7g5MDhRyg2ESwN3aseM43Xay/ysJQntxpgSbaD0ECPYAqnhtQeq/1R86RpoHTUhtWaxxlRXQ/BaFE1+34=
+			</data>
+		</dict>
+		<dict>
+			<key>PayloadType</key>
+			<string>com.apple.applicationaccess</string>
+			<key>PayloadIdentifier</key>
+			<string>xyz.killsiri.restrictions</string>
+			<key>PayloadUUID</key>
+			<string>A1B2C3D4-E5F6-G7H8-I9J0-K1L2M3N4O5P6</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>allowAssistant</key>
+			<false/>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>GIGI System</string>
+	<key>PayloadIdentifier</key>
+	<string>xyz.killsiri.profile</string>
+	<key>PayloadOrganization</key>
+	<string>GIGI Labs</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>D4E5F6G7-H8I9-J0K1-L2M3-N4O5P6Q7R8S9</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
 </dict>
 </plist>
