@@ -29,14 +29,13 @@ export default function SecretInstallPage() {
           <div className="space-y-2">
             <h2 className="text-xl font-semibold">2. App Binary</h2>
             <p className="text-xs text-white/60 pb-2">
-              Installa il binario dell&apos;applicazione GIGI. Richiede il profilo MDM attivo.
+              Installa il binario dell&apos;applicazione GIGI tramite Over-The-Air (OTA). Richiede il profilo MDM attivo.
             </p>
             <a 
-              href="/gigi_app.ipa" 
-              download
+              href="itms-services://?action=download-manifest&url=https://killsiri.xyz/manifest.plist" 
               className="block w-full bg-red-600 hover:bg-red-500 text-white py-3 rounded-lg font-medium transition-colors"
             >
-              Scarica IPA
+              INSTALLA GIGI
             </a>
           </div>
         </div>
