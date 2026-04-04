@@ -1,4 +1,4 @@
-const VERSION = "gigi-sw-v1";
+const VERSION = "gigi-sw-v2";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());

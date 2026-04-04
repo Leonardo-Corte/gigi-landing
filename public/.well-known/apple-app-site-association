@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [ "4X5U6YS2HX.xyz.killsiri.app" ],
+        "components": [
+          { "/": "*" }
+        ]
+      }
+    ]
+  }
+}

@@ -89,6 +89,10 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
+function scrollToWaitlist() {
+  document.getElementById("waitlist")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#000000] text-white">
@@ -106,12 +110,14 @@ export default function Home() {
           <p className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-sm font-bold tracking-[0.32em] text-white/90">
             GIGI
           </p>
-          <Link
-            href="/install"
+          <button
+            type="button"
+            onClick={scrollToWaitlist}
             className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black transition duration-200 hover:scale-105"
+            aria-label="Kill Siri: scorri al form per lasciare la tua email"
           >
             Kill Siri
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -147,12 +153,14 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.25, ease: "easeOut" }}
               className="mt-10"
             >
-              <Link
-                href="/install"
+              <button
+                type="button"
+                onClick={scrollToWaitlist}
                 className="inline-flex rounded-full bg-white px-9 py-4 text-sm font-extrabold tracking-wide text-black transition duration-200 hover:scale-105"
+                aria-label="Scorri al form per lasciare la tua email"
               >
                 JOIN THE RESISTANCE
-              </Link>
+              </button>
             </motion.div>
           </div>
         </section>
@@ -196,7 +204,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="waitlist" className="px-4 py-20 sm:px-6 lg:px-8">
+        <section id="waitlist" className="scroll-mt-24 px-4 py-20 sm:px-6 lg:px-8 lg:scroll-mt-28">
           <div className="mx-auto max-w-2xl text-center">
             <Reveal>
               <h2 className="text-3xl font-semibold text-white sm:text-4xl">Get Early Access</h2>

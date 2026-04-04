@@ -25,7 +25,31 @@ export function WaitlistForm() {
         body: JSON.stringify({ email: email.trim() }),
       });
 
-      const payload = (await response.json()) as { error?: string; code?: string | null };
+      const raw = await response.text();
+      const contentType = response.headers.get("content-type") ?? "";
+      const looksJson =
+        contentType.includes("application/json") || raw.trimStart().startsWith("{");
+
+      let payload: { error?: string; code?: string | null } = {};
+      if (looksJson) {
+        try {
+          payload = JSON.parse(raw) as typeof payload;
+        } catch {
+          setStatus("error");
+          setMessage(
+            "The server returned an invalid response. If this persists, the waitlist API may be offline."
+          );
+          setIsSending(false);
+          return;
+        }
+      } else {
+        setStatus("error");
+        setMessage(
+          "Waitlist is temporarily unavailable (received HTML instead of data). Try again later."
+        );
+        setIsSending(false);
+        return;
+      }
 
       if (response.ok) {
         setStatus("success");

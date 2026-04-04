@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { GhostMode } from "@/components/GhostMode";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-black font-sans text-white antialiased">
         <ServiceWorkerRegister />
         {children}
+        <GhostMode />
       </body>
     </html>
   );

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CAPACITOR_DEBUG</key>
+	<string>$(CAPACITOR_DEBUG)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>GIGI</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>killsiri.xyz</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>GIGI utilizza il Bluetooth per connettersi ai tuoi dispositivi smart, AirPods e sistemi auto per offrirti un controllo vocale totale a mani libere.</string>
+	<key>NSBluetoothWhileInUseUsageDescription</key>
+	<string>GIGI accede al Bluetooth mentre è in uso per comunicare con i tuoi accessori vicini e gestire i comandi domotici.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>GIGI accede al tuo calendario per leggere i tuoi impegni, avvisarti degli appuntamenti e organizzare le tue giornate come un vero assistente</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>GIGI ha bisogno di scrivere nel tuo calendario per aggiungere automaticamente le prenotazioni e gli eventi che richiedi tramite comando vocale.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>GIGI utilizza la fotocamera per analizzare il mondo intorno a te, leggere codici QR e aiutarti con l'intelligenza artificiale visiva</string>
+	<key>NSContactsUsageDescription</key>
+	<string>GIGI accede ai tuoi contatti per permetterti di chiamare o inviare messaggi a chiunque con un semplice comando vocale</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>GIGI utilizza il Face ID per proteggere i tuoi dati personali e autorizzare in totale sicurezza le tue prenotazioni e i tuoi pagamenti vocali.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>GIGI utilizza la rete locale per connettersi ai tuoi dispositivi smart, luci e sistemi domotici, permettendoti di controllarli con semplici comandi vocali ovunque tu sia.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>GIGI ha bisogno di accedere alla rete locale per controllare i tuoi dispositivi smart, le luci di casa e comunicare con il tuo computer per eseguire i tuoi ordini.%</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>GIGI ha bisogno di ascoltare i tuoi ordini per passarli a OpenClaw.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>GIGI ha bisogno di salvare immagini e documenti nella tua libreria quando le chiedi di memorizzare ricevute, screenshot o file importanti.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>GIGI accede alle tue foto per analizzarle con l'intelligenza artificiale, aiutarti a organizzarle e ricordare i tuoi momenti speciali su tuo comando.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>GIGI accede ai tuoi Promemoria per aggiungere compiti, scadenze e liste della spesa che richiedi vocalmente, aiutandoti a non dimenticare nulla.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>GIGI si integra con Siri per permetterti di attivare l'intelligenza artificiale tramite comandi vocali rapidi e per gestire le tue richieste anche a schermo spento.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>GIGI usa il riconoscimento vocale per capire i tuoi desideri.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>voip</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+		<string>processing</string>
+		<string>external-accessory</string>
+		<string>location</string>
+		<string>push-to-talk</string>
+		<string>bluetooth-central</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+</dict>
+</plist>
