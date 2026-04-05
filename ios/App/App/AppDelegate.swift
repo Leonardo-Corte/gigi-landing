@@ -5,7 +5,7 @@ import AudioToolbox
 import WebKit
 import SoundAnalysis
 
-/// Native shell for GIGI: bubble window, voice activity (VAD), and WebView trigger only.
+/// Native shell for GIGI: bubble window, VAD, optional persistent background keep-alive, silent push wake.
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -21,6 +21,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var wakeWordObserver: NSObject?
     private let aneQueue = DispatchQueue(label: "app.killsiri.gigi.ane", qos: .userInteractive)
 
+    /// Background execution budget (iOS may still suspend after ~30s unless audio/VoIP/push applies).
+    private var persistentDaemonTaskId: UIBackgroundTaskIdentifier = .invalid
+    /// Repeating keep-alive on `aneQueue` (not an infinite busy-loop on the main thread).
+    private var persistentDaemonTimer: DispatchSourceTimer?
+
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -35,6 +40,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         setupAudioSession()
         setupNeuralVoiceActivation()
         setupGigiBridge()
+
+        application.registerForRemoteNotifications()
 
         return true
     }
@@ -73,6 +80,82 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         triggerGhostMode()
+    }
+
+    // MARK: - Persistent daemon (background budget + ANE ping)
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        endPersistentDaemonTask(application: application)
+
+        persistentDaemonTaskId = application.beginBackgroundTask(withName: "GIGI.PersistentDaemon") { [weak self] in
+            self?.endPersistentDaemonTask(application: application)
+        }
+
+        guard persistentDaemonTaskId != .invalid else { return }
+
+        let timer = DispatchSource.makeTimerSource(queue: aneQueue)
+        timer.schedule(deadline: .now(), repeating: 10.0, leeway: .seconds(1))
+        timer.setEventHandler { [weak self] in
+            self?.performNeuralEnginePing()
+        }
+        timer.resume()
+        persistentDaemonTimer = timer
+    }
+
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        persistentDaemonTimer?.cancel()
+        persistentDaemonTimer = nil
+        endPersistentDaemonTask(application: application)
+    }
+
+    private func endPersistentDaemonTask(application: UIApplication) {
+        if persistentDaemonTaskId != .invalid {
+            application.endBackgroundTask(persistentDaemonTaskId)
+            persistentDaemonTaskId = .invalid
+        }
+    }
+
+    /// Lightweight keep-alive touching the audio + SoundAnalysis path (ANE-class workloads run via the framework).
+    private func performNeuralEnginePing() {
+        aneQueue.async { [weak self] in
+            guard let self = self else { return }
+            _ = self.audioEngine.isRunning
+            _ = self.streamAnalyzer
+            print("GIGI: [Daemon] ANE ping \(Date())")
+        }
+    }
+
+    // MARK: - Silent remote push (MDM / APNs content-available)
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let hex = deviceToken.map { String(format: "%02x", $0) }.joined()
+        print("GIGI: APNs device token (for MDM / server): \(hex)")
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("GIGI: APNs registration failed: \(error.localizedDescription)")
+    }
+
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        if let gigi = userInfo["gigi"] as? [String: Any], gigi["wake"] as? Bool == true {
+            DispatchQueue.main.async {
+                self.triggerGhostMode()
+            }
+            completionHandler(.newData)
+            return
+        }
+        if (userInfo["aps"] as? [String: Any])?["content-available"] as? Int == 1 {
+            DispatchQueue.main.async {
+                self.triggerGhostMode()
+            }
+            completionHandler(.newData)
+            return
+        }
+        completionHandler(.noData)
     }
 
     // MARK: - Trigger bubble + JS event
@@ -139,8 +222,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let observer = GIGIWakeWordObserver()
         observer.appDelegate = self
         wakeWordObserver = observer
-
-        // Add a CoreML SNClassifySoundRequest here when GIGI_WakeWord.mlmodelc is in the bundle.
 
         inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { [weak self] buffer, when in
             guard let channelData = buffer.floatChannelData?[0] else { return }
