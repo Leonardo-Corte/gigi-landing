@@ -313,8 +313,27 @@ extension AppDelegate: WKScriptMessageHandler {
             performInvisibleMessage(payload: payload)
         } else if action == "authenticatePayment" {
             performBiometricPaymentAuth(payload: payload)
+        } else if action == "hideBubble" {
+            performHideBubble()
         } else {
             print("GIGI: [LEE] Unknown action: \(action)")
+        }
+    }
+
+    private func performHideBubble() {
+        DispatchQueue.main.async {
+            guard let window = self.window else { return }
+            
+            UIView.animate(withDuration: 0.4,
+                           delay: 0,
+                           options: .curveEaseIn,
+                           animations: {
+                window.alpha = 0.0
+                window.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            }, completion: { _ in
+                window.isHidden = true
+                print("GIGI: [HACK] Bubble hidden and window disabled.")
+            })
         }
     }
 
