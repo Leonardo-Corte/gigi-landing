@@ -10,6 +10,7 @@ export const GhostMode = () => {
         // Ascoltiamo il segnale che arriva da Swift
         const handleGigiWake = () => {
             console.log("React: Ricevuto segnale di risveglio GIGI!");
+            alert('GIGI ACTIVATED');
             setIsVisible(true);
         };
 

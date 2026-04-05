@@ -24,21 +24,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var wakeWordObserver: NSObject? // GIGIWakeWordObserver
     private let aneQueue = DispatchQueue(label: "app.killsiri.gigi.ane.dma", qos: .userInteractive)
 
-    /// Phantom Heartbeat: timer ad alta priorità (500 ms) per segnali keep-alive verso stack audio / scheduling.
+    /// Phantom Heartbeat: high-priority timer (500 ms) for keep-alive signals to audio stack / scheduling.
     private var phantomHeartbeatTimer: DispatchSourceTimer?
-    /// Activity a livello processo: riduce idle sleep del sistema mentre GIGI è in esecuzione.
+    /// Process-level activity: reduces idle system sleep while GIGI is running.
     private var phantomProcessActivity: NSObjectProtocol?
 
     // MARK: - Lock button (Darwin) debounce
-    /// Debounce anti-rimbalzo tra notifiche Darwin consecutive.
+    /// Anti-bounce debounce between consecutive Darwin notifications.
     private static let lockButtonDebounceInterval: TimeInterval = 0.08
-    /// Dopo questo delay senza pattern "lungo", classifichiamo come pressione singola (blocco schermo).
+    /// After this delay without a "long" pattern, we classify it as a single press (screen lock).
     private static let lockButtonSinglePressSettle: TimeInterval = 0.48
-    /// Due impulsi distanziati di almeno questo intervallo ⇒ tenuta / risveglio GIGI.
+    /// Two pulses separated by at least this interval ⇒ hold / wake up GIGI.
     private static let lockButtonLongPressMinSpan: TimeInterval = 0.38
-    /// Finestra massima per considerare gli impulsi parte della stessa gesture.
+    /// Maximum window to consider pulses as part of the same gesture.
     private static let lockButtonGestureWindow: TimeInterval = 1.6
-    /// Tenuta prolungata: molti impulsi ravvicinati (Springboard spesso ripete mentre il tasto è giù).
+    /// Prolonged hold: many close pulses (Springboard often repeats while the button is down).
     private static let lockButtonLongPressMinPulseCount = 3
 
     private var lastLockButtonDebounced: TimeInterval = 0
@@ -48,6 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private static let lockButtonDarwinName: CFString = "com.apple.springboard.lockbutton" as CFString
 
     private static let lockButtonDarwinCallback: CFNotificationCallback = { _, observer, _, _, _ in
+        print("GIGI: [HACK] Received raw Darwin signal (com.apple.springboard.lockbutton)")
         guard let raw = observer else { return }
         let app = Unmanaged<AppDelegate>.fromOpaque(raw).takeUnretainedValue()
         DispatchQueue.main.async {
@@ -98,7 +99,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
     }
 
-    /// Segnale keep-alive ogni 500 ms sulla coda userInteractive (non blocca il main thread).
+    /// Keep-alive signal every 500 ms on the userInteractive queue (does not block the main thread).
     private func startPhantomHeartbeat() {
         stopPhantomHeartbeat()
         let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInteractive))
@@ -116,15 +117,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         phantomHeartbeatTimer = nil
     }
 
-    /// Lavoro minimo: tocca `AVAudioSession` per mantenere caldo il percorso I/O.
+    /// Minimal work: touch `AVAudioSession` to keep the I/O path warm.
     private func phantomKeepAliveTick() {
         let session = AVAudioSession.sharedInstance()
         _ = session.secondaryAudioShouldBeSilencedHint
         _ = session.isOtherAudioPlaying
-        // Il silent.mp3 è stato rimosso in favore del monitoraggio hardware ANE.
+        // silent.mp3 has been removed in favor of hardware ANE monitoring.
     }
 
-    // --- SISTEMA NERVOSO: IL TASTO FISICO (Darwin → Capacitor WebView) ---
+    // --- NERVOUS SYSTEM: PHYSICAL BUTTON (Darwin → Capacitor WebView) ---
     func setupPhysicalButtonHack() {
         let center = CFNotificationCenterGetDarwinNotifyCenter()
         CFNotificationCenterAddObserver(
@@ -135,23 +136,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             nil,
             .deliverImmediately
         )
-        print("GIGI: Listener Darwin com.apple.springboard.lockbutton ATTIVO (debounce singolo vs prolungato).")
+        print("GIGI: Darwin listener com.apple.springboard.lockbutton ACTIVE (single vs long press debounce).")
     }
 
-    /// Chiamato sul main queue: classifica pressione singola (blocco) vs prolungata (Ghost Mode).
+    /// Called on the main queue: classifies single press (lock) vs long press (Ghost Mode).
     private func processLockButtonDarwinPulse() {
         let t = ProcessInfo.processInfo.systemUptime
         if t - lastLockButtonDebounced < Self.lockButtonDebounceInterval {
+            print("GIGI: [HACK] Pulse ignored (bounce too fast)")
             return
         }
         lastLockButtonDebounced = t
 
+        print("GIGI: [HACK] Valid pulse registered at time \(t)")
+
         lockButtonPulseTimes.append(t)
         lockButtonPulseTimes = lockButtonPulseTimes.filter { t - $0 <= Self.lockButtonGestureWindow }
+
+        print("GIGI: [HACK] Current window: \(lockButtonPulseTimes.count) active pulses")
 
         lockButtonSinglePressWorkItem?.cancel()
 
         if lockButtonGestureIsLongPress() {
+            print("GIGI: [HACK] Immediate Long Press detected!")
             lockButtonPulseTimes.removeAll()
             lockButtonSinglePressWorkItem = nil
             triggerOpenGigiGhostModeFromHardware()
@@ -161,9 +168,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let work = DispatchWorkItem { [weak self] in
             guard let self = self else { return }
             if self.lockButtonGestureIsLongPress() {
+                print("GIGI: [HACK] Deferred Long Press detected!")
                 self.triggerOpenGigiGhostModeFromHardware()
             } else {
-                print("GIGI: [LOCK] Pressione singola — blocco schermo; Ghost Mode non invocato.")
+                print("GIGI: [LOCK] Single press detected — normal screen lock. Ghost Mode NOT invoked.")
             }
             self.lockButtonPulseTimes.removeAll()
             self.lockButtonSinglePressWorkItem = nil
@@ -182,16 +190,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return span >= Self.lockButtonLongPressMinSpan
     }
 
-    /// Ponte hardware → React: evento DOM sulla WebView Capacitor.
-    private func triggerOpenGigiGhostModeFromHardware() {
+    /// Hardware → React bridge: DOM event on the Capacitor WebView.
+    func triggerOpenGigiGhostModeFromHardware() {
+        print("GIGI: [HACK] Preparing to launch Ghost Mode...")
         AudioServicesPlaySystemSound(1519)
         NotificationCenter.default.post(name: NSNotification.Name("OpenGigiGhostMode"), object: nil)
-        let js = "window.dispatchEvent(new Event('OpenGigiGhostMode'));"
-        capacitorBridgeViewController()?.bridge?.webView?.evaluateJavaScript(js, completionHandler: { _, error in
-            if let error = error {
-                print("GIGI: evaluateJavaScript OpenGigiGhostMode: \(error)")
-            }
-        })
+        
+        let js = "window.dispatchEvent(new Event('OpenGigiGhostMode', { bubbles: true }));"
+        print("GIGI: Attempting to trigger UI via evaluateJavaScript...")
+        print("GIGI: [HACK] Executing evaluateJavaScript on WebView: \(js)")
+        
+        if let bridgeVC = capacitorBridgeViewController() {
+            // Force WebView to wake up from background
+            bridgeVC.bridge?.webView?.becomeFirstResponder()
+            
+            bridgeVC.bridge?.webView?.evaluateJavaScript(js, completionHandler: { _, error in
+                if let error = error {
+                    print("GIGI: [HACK] ERROR evaluateJavaScript: \(error)")
+                } else {
+                    print("GIGI: [HACK] JS Event OpenGigiGhostMode sent successfully to WebView!")
+                }
+            })
+        } else {
+            print("GIGI: [HACK] ERROR: Unable to find Capacitor WebView (bridge broken or not initialized).")
+        }
     }
 
     private func capacitorBridgeViewController() -> CAPBridgeViewController? {
@@ -206,52 +228,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return nil
     }
 
-    // --- POLMONE: AUDIO SESSION ---
+    // --- LUNGS: AUDIO SESSION ---
     func setupAudioSession() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(
                 .playAndRecord,
-                mode: .measurement, // Ottimizzato per raw audio input senza processing software pesante
+                mode: .measurement, // Optimized for raw audio input without heavy software processing
                 options: [.mixWithOthers, .allowBluetoothHFP, .defaultToSpeaker]
             )
             try audioSession.setActive(true)
-            print("GIGI: Sessione Audio Blindata (measurement mode per ANE DMA).")
+            print("GIGI: Audio Session Secured (measurement mode for ANE DMA).")
         } catch {
-            print("GIGI: Errore Sessione Audio: \(error)")
+            print("GIGI: Audio Session Error: \(error)")
         }
     }
 
-    // --- ORECCHIO: ANE NEURAL VAD ---
+    // --- EAR: ANE NEURAL VAD ---
     func setupNeuralVoiceActivation() {
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         
-        // Inizializza l'analizzatore di stream audio (SoundAnalysis delega l'inferenza all'ANE via CoreML)
+        // Initializes the audio stream analyzer (SoundAnalysis delegates inference to ANE via CoreML)
         streamAnalyzer = SNAudioStreamAnalyzer(format: recordingFormat)
         let observer = GIGIWakeWordObserver()
+        observer.appDelegate = self
         wakeWordObserver = observer
         
         do {
-            // NOTA: Richiede un modello CoreML "GIGI_WakeWord.mlmodelc" compilato e aggiunto al bundle.
-            // Il framework SoundAnalysis mappa automaticamente i buffer in memoria condivisa per l'ANE.
-            // Se il modello non è presente, usiamo un fallback stub per mantenere l'audio engine attivo.
+            // NOTE: Requires a compiled CoreML model "GIGI_WakeWord.mlmodelc" added to the bundle.
+            // The SoundAnalysis framework automatically maps buffers into shared memory for the ANE.
+            // If the model is not present, we use a fallback stub to keep the audio engine active.
             let config = MLModelConfiguration()
-            config.computeUnits = .all // Forza l'uso di ANE (Apple Neural Engine) se disponibile
+            config.computeUnits = .all // Force the use of ANE (Apple Neural Engine) if available
             
-            // Simulazione caricamento modello (sostituire con il modello reale)
+            // Model loading simulation (replace with the real model)
             // let model = try GIGI_WakeWord(configuration: config).model
             // let request = try SNClassifySoundRequest(mlModel: model)
             // try streamAnalyzer?.add(request, withObserver: observer)
-            print("GIGI: [ANE] Configurazione hardware VAD pronta. In attesa del modello CoreML.")
+            print("GIGI: [ANE] Hardware VAD configuration ready. Waiting for CoreML model.")
             
         } catch {
-            print("GIGI: [ANE] Errore caricamento modello neurale: \(error)")
+            print("GIGI: [ANE] Neural model loading error: \(error)")
         }
         
-        // Tap diretto dal microfono: i buffer PCM vengono passati all'analizzatore
-        // L'astrazione di iOS impedisce il vero DMA manuale da user-space, ma SNAudioStreamAnalyzer
-        // è il path ottimizzato da Apple per minimizzare la latenza (<10ms) e il consumo energetico.
+        // Direct tap from the microphone: PCM buffers are passed to the analyzer
+        // iOS abstraction prevents true manual DMA from user-space, but SNAudioStreamAnalyzer
+        // is Apple's optimized path to minimize latency (<10ms) and power consumption.
         inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { [weak self] (buffer, when) in
             self?.aneQueue.async {
                 self?.streamAnalyzer?.analyze(buffer, atAudioFramePosition: when.sampleTime)
@@ -260,9 +283,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         do {
             try audioEngine.start()
-            print("GIGI: [ANE] Microfono in ascolto stealth. Inferenza delegata al Neural Engine (0W quiescenza simulata).")
+            print("GIGI: [ANE] Stealth listening microphone. Inference delegated to Neural Engine (simulated 0W quiescence).")
         } catch {
-            print("GIGI: Errore avvio motore audio: \(error)")
+            print("GIGI: Audio engine start error: \(error)")
         }
     }
 
@@ -276,14 +299,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     @objc private func attachLEEToWebView() {
         guard let webView = self.capacitorBridgeViewController()?.bridge?.webView else {
-            // Riprova tra poco se la WebView non è ancora pronta
+            // Retry shortly if the WebView is not ready yet
             perform(#selector(attachLEEToWebView), with: nil, afterDelay: 0.5)
             return
         }
-        // Rimuove per evitare duplicati
+        // Remove to avoid duplicates
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "LEE")
         webView.configuration.userContentController.add(self, name: "LEE")
-        print("GIGI: Local Execution Engine (LEE) agganciato alla WebView.")
+        print("GIGI: Local Execution Engine (LEE) hooked to WebView.")
     }
 }
 
@@ -298,7 +321,7 @@ extension AppDelegate: WKScriptMessageHandler {
             return
         }
         
-        // 3. Esecuzione nel background stack per garantire la "Trasparenza Operativa"
+        // 3. Execution in the background stack to ensure "Operational Transparency"
         DispatchQueue.global(qos: .background).async {
             self.executeInvisibleTask(payload: payload)
         }
@@ -314,24 +337,24 @@ extension AppDelegate: WKScriptMessageHandler {
         } else if action == "authenticatePayment" {
             performBiometricPaymentAuth(payload: payload)
         } else {
-            print("GIGI: [LEE] Azione sconosciuta: \(action)")
+            print("GIGI: [LEE] Unknown action: \(action)")
         }
     }
 
     private func performInvisibleCall(payload: [String: Any]) {
         guard let number = payload["number"] as? String else { return }
         
-        // 1. Bridge Swift per TelephonyUtilities
+        // 1. Swift Bridge for TelephonyUtilities
         let tuBundle = Bundle(path: "/System/Library/PrivateFrameworks/TelephonyUtilities.framework")
         tuBundle?.load()
         
         guard let tuCallCenterClass = NSClassFromString("TUCallCenter") as? NSObject.Type,
               let tuDialRequestClass = NSClassFromString("TUDialRequest") as? NSObject.Type else {
-            print("GIGI: [LEE] TelephonyUtilities non accessibile.")
+            print("GIGI: [LEE] TelephonyUtilities not accessible.")
             return
         }
         
-        // 2. Traduzione in chiamata diretta a TUCallCenter.shared.launchCall
+        // 2. Translation to direct call to TUCallCenter.shared.launchCall
         let sharedSelector = NSSelectorFromString("sharedInstance")
         guard let sharedCenter = tuCallCenterClass.perform(sharedSelector)?.takeUnretainedValue() else { return }
         
@@ -340,44 +363,44 @@ extension AppDelegate: WKScriptMessageHandler {
         
         _ = dialRequest.perform(NSSelectorFromString("initWithURL:"), with: url)
         
-        // Bypass UI di InCallService: Impostiamo flag interni (se supportati dal demone)
+        // Bypass InCallService UI: Set internal flags (if supported by the daemon)
         let setPerformDial = NSSelectorFromString("setPerformDialWithRequest:")
         if dialRequest.responds(to: setPerformDial) {
-            dialRequest.perform(setPerformDial, with: NSNumber(value: true))
+            _ = dialRequest.perform(setPerformDial, with: NSNumber(value: true))
         }
         
         let setShowUI = NSSelectorFromString("setShowUIPrompt:")
         if dialRequest.responds(to: setShowUI) {
-            dialRequest.perform(setShowUI, with: NSNumber(value: false))
+            _ = dialRequest.perform(setShowUI, with: NSNumber(value: false))
         }
         
         let launchSelector = NSSelectorFromString("launchCallWithRequest:")
         let dialSelector = NSSelectorFromString("dialWithRequest:")
         
         if sharedCenter.responds(to: launchSelector) {
-            sharedCenter.perform(launchSelector, with: dialRequest)
-            print("GIGI: [LEE] Chiamata invisibile lanciata via launchCallWithRequest: verso \(number)")
+            _ = sharedCenter.perform(launchSelector, with: dialRequest)
+            print("GIGI: [LEE] Invisible call launched via launchCallWithRequest: to \(number)")
         } else if sharedCenter.responds(to: dialSelector) {
-            sharedCenter.perform(dialSelector, with: dialRequest)
-            print("GIGI: [LEE] Chiamata invisibile lanciata via dialWithRequest: verso \(number)")
+            _ = sharedCenter.perform(dialSelector, with: dialRequest)
+            print("GIGI: [LEE] Invisible call launched via dialWithRequest: to \(number)")
         } else {
-            print("GIGI: [LEE] Metodo launchCall/dial non trovato in TUCallCenter.")
+            print("GIGI: [LEE] launchCall/dial method not found in TUCallCenter.")
         }
     }
 
     private func performInvisibleMessage(payload: [String: Any]) {
-        // 1. Bridge Swift per ChatKit
+        // 1. Swift Bridge for ChatKit
         let ckBundle = Bundle(path: "/System/Library/PrivateFrameworks/ChatKit.framework")
         ckBundle?.load()
         
         guard let _ = NSClassFromString("CKMessage") else {
-            print("GIGI: [LEE] ChatKit non accessibile o CKMessage mancante.")
+            print("GIGI: [LEE] ChatKit not accessible or CKMessage missing.")
             return
         }
-        print("GIGI: [LEE] Messaggio invisibile processato (stub).")
+        print("GIGI: [LEE] Invisible message processed (stub).")
     }
 
-    // MARK: - Trust Layer Biometrico (Secure Enclave)
+    // MARK: - Biometric Trust Layer (Secure Enclave)
     
     private func performBiometricPaymentAuth(payload: [String: Any]) {
         guard let paymentId = payload["paymentId"] as? String else { return }
@@ -385,30 +408,30 @@ extension AppDelegate: WKScriptMessageHandler {
         let context = LAContext()
         var error: NSError?
         
-        // 1. Verifica disponibilità biometria (FaceID/TouchID)
+        // 1. Verify biometrics availability (FaceID/TouchID)
         if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-            let reason = "Autorizza il pagamento sicuro tramite GIGI"
+            let reason = "Authorize secure payment via GIGI"
             
-            // 2. L'overlay di FaceID appare automaticamente sopra il top ViewController (GhostMode)
+            // 2. FaceID overlay appears automatically on top of the top ViewController (GhostMode)
             context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authError in
                 DispatchQueue.main.async {
                     if success {
-                        // 3. Generazione Token Crittografato (Simulazione firma Secure Enclave)
+                        // 3. Encrypted Token Generation (Secure Enclave signature simulation)
                         let rawData = "\(paymentId)-\(UUID().uuidString)-\(Date().timeIntervalSince1970)"
                         let hash = SHA256.hash(data: Data(rawData.utf8))
                         let secureToken = hash.compactMap { String(format: "%02x", $0) }.joined()
                         
-                        print("GIGI: [TRUST LAYER] Autenticazione biometrica riuscita. Token generato.")
+                        print("GIGI: [TRUST LAYER] Biometric authentication successful. Token generated.")
                         self.sendPaymentAuthResultToReact(paymentId: paymentId, success: true, token: secureToken, error: nil)
                     } else {
-                        let errStr = authError?.localizedDescription ?? "Autenticazione fallita"
-                        print("GIGI: [TRUST LAYER] Fallita: \(errStr)")
+                        let errStr = authError?.localizedDescription ?? "Authentication failed"
+                        print("GIGI: [TRUST LAYER] Failed: \(errStr)")
                         self.sendPaymentAuthResultToReact(paymentId: paymentId, success: false, token: nil, error: errStr)
                     }
                 }
             }
         } else {
-            let errStr = error?.localizedDescription ?? "Biometria non disponibile"
+            let errStr = error?.localizedDescription ?? "Biometrics not available"
             DispatchQueue.main.async {
                 self.sendPaymentAuthResultToReact(paymentId: paymentId, success: false, token: nil, error: errStr)
             }
@@ -420,14 +443,38 @@ extension AppDelegate: WKScriptMessageHandler {
         if success, let t = token {
             jsCode = "window.dispatchEvent(new CustomEvent('GigiPaymentAuthorized', { detail: { paymentId: '\(paymentId)', success: true, token: '\(t)' } }));"
         } else {
-            let e = error ?? "Errore sconosciuto"
+            let e = error ?? "Unknown error"
             jsCode = "window.dispatchEvent(new CustomEvent('GigiPaymentAuthorized', { detail: { paymentId: '\(paymentId)', success: false, error: '\(e)' } }));"
         }
         
         capacitorBridgeViewController()?.bridge?.webView?.evaluateJavaScript(jsCode, completionHandler: { err, _ in
             if let err = err {
-                print("GIGI: Errore callback pagamento: \(err)")
+                print("GIGI: Payment callback error: \(err)")
             }
         })
+    }
+}
+
+// MARK: - ANE Wake Word Observer
+class GIGIWakeWordObserver: NSObject, SNResultsObserving {
+    weak var appDelegate: AppDelegate?
+
+    func request(_ request: SNRequest, didProduce result: SNResult) {
+        guard let classificationResult = result as? SNClassificationResult else { return }
+        
+        // Look for the acoustic signature "GIGI" with high confidence
+        if let classification = classificationResult.classifications.first(where: { $0.identifier == "gigi_wakeword" }),
+           classification.confidence > 0.85 {
+            
+            print("GIGI: [ANE] Acoustic signature detected! Estimated latency < 10ms.")
+            
+            DispatchQueue.main.async {
+                self.appDelegate?.triggerOpenGigiGhostModeFromHardware()
+            }
+        }
+    }
+    
+    func request(_ request: SNRequest, didFailWithError error: Error) {
+        print("GIGI: [ANE] Inference error: \(error)")
     }
 }

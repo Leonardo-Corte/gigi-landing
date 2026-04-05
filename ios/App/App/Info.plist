@@ -38,35 +38,35 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>GIGI utilizza il Bluetooth per connettersi ai tuoi dispositivi smart, AirPods e sistemi auto per offrirti un controllo vocale totale a mani libere.</string>
+	<string>GIGI uses Bluetooth to connect to your smart devices, AirPods, and car systems to offer you total hands-free voice control.</string>
 	<key>NSBluetoothWhileInUseUsageDescription</key>
-	<string>GIGI accede al Bluetooth mentre è in uso per comunicare con i tuoi accessori vicini e gestire i comandi domotici.</string>
+	<string>GIGI accesses Bluetooth while in use to communicate with nearby accessories and manage smart home commands.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>GIGI accede al tuo calendario per leggere i tuoi impegni, avvisarti degli appuntamenti e organizzare le tue giornate come un vero assistente</string>
+	<string>GIGI accesses your calendar to read your schedule, notify you of appointments, and organize your days like a true assistant.</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
-	<string>GIGI ha bisogno di scrivere nel tuo calendario per aggiungere automaticamente le prenotazioni e gli eventi che richiedi tramite comando vocale.</string>
+	<string>GIGI needs to write to your calendar to automatically add bookings and events you request via voice command.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>GIGI utilizza la fotocamera per analizzare il mondo intorno a te, leggere codici QR e aiutarti con l'intelligenza artificiale visiva</string>
+	<string>GIGI uses the camera to analyze the world around you, read QR codes, and help you with visual artificial intelligence.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>GIGI accede ai tuoi contatti per permetterti di chiamare o inviare messaggi a chiunque con un semplice comando vocale</string>
+	<string>GIGI accesses your contacts to allow you to call or message anyone with a simple voice command.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>GIGI utilizza il Face ID per proteggere i tuoi dati personali e autorizzare in totale sicurezza le tue prenotazioni e i tuoi pagamenti vocali.</string>
+	<string>GIGI uses Face ID to protect your personal data and securely authorize your voice bookings and payments.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>GIGI utilizza la rete locale per connettersi ai tuoi dispositivi smart, luci e sistemi domotici, permettendoti di controllarli con semplici comandi vocali ovunque tu sia.</string>
+	<string>GIGI uses the local network to connect to your smart devices, home lights, and home automation systems, allowing you to control them with simple voice commands wherever you are.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>GIGI ha bisogno di accedere alla rete locale per controllare i tuoi dispositivi smart, le luci di casa e comunicare con il tuo computer per eseguire i tuoi ordini.%</string>
+	<string>GIGI needs access to your location to control your smart devices, home lights, and communicate with your computer to execute your orders.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>GIGI ha bisogno di ascoltare i tuoi ordini per passarli a OpenClaw.</string>
+	<string>GIGI needs to listen to your orders to pass them to OpenClaw.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>GIGI ha bisogno di salvare immagini e documenti nella tua libreria quando le chiedi di memorizzare ricevute, screenshot o file importanti.</string>
+	<string>GIGI needs to save images and documents to your library when you ask it to store receipts, screenshots, or important files.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>GIGI accede alle tue foto per analizzarle con l'intelligenza artificiale, aiutarti a organizzarle e ricordare i tuoi momenti speciali su tuo comando.</string>
+	<string>GIGI accesses your photos to analyze them with artificial intelligence, help you organize them, and remember your special moments on your command.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
-	<string>GIGI accede ai tuoi Promemoria per aggiungere compiti, scadenze e liste della spesa che richiedi vocalmente, aiutandoti a non dimenticare nulla.</string>
+	<string>GIGI accesses your Reminders to add tasks, deadlines, and shopping lists you request vocally, helping you not forget anything.</string>
 	<key>NSSiriUsageDescription</key>
-	<string>GIGI si integra con Siri per permetterti di attivare l'intelligenza artificiale tramite comandi vocali rapidi e per gestire le tue richieste anche a schermo spento.</string>
+	<string>GIGI integrates with Siri to allow you to activate artificial intelligence via quick voice commands and manage your requests even with the screen off.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>GIGI usa il riconoscimento vocale per capire i tuoi desideri.</string>
+	<string>GIGI uses speech recognition to understand your desires.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
