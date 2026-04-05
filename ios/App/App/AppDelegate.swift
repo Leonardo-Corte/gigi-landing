@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Lock button (Darwin) debounce
     /// Anti-bounce debounce between consecutive Darwin notifications.
-    private static let lockButtonDebounceInterval: TimeInterval = 0.08
+    private static let lockButtonDebounceInterval: TimeInterval = 0.05
     /// After this delay without a "long" pattern, we classify it as a single press (screen lock).
     private static let lockButtonSinglePressSettle: TimeInterval = 0.48
     /// Two pulses separated by at least this interval ⇒ hold / wake up GIGI.
@@ -48,6 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private static let lockButtonDarwinName: CFString = "com.apple.springboard.lockbutton" as CFString
 
     private static let lockButtonDarwinCallback: CFNotificationCallback = { _, observer, _, _, _ in
+        print("GIGI: [HACK] Button Pulse Detected")
         print("GIGI: [HACK] Received raw Darwin signal (com.apple.springboard.lockbutton)")
         guard let raw = observer else { return }
         let app = Unmanaged<AppDelegate>.fromOpaque(raw).takeUnretainedValue()
@@ -196,7 +197,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AudioServicesPlaySystemSound(1519)
         NotificationCenter.default.post(name: NSNotification.Name("OpenGigiGhostMode"), object: nil)
         
-        let js = "window.dispatchEvent(new Event('OpenGigiGhostMode', { bubbles: true }));"
+        let js = "window.focus(); window.dispatchEvent(new CustomEvent('OpenGigiGhostMode'));"
         print("GIGI: Attempting to trigger UI via evaluateJavaScript...")
         print("GIGI: [HACK] Executing evaluateJavaScript on WebView: \(js)")
         
@@ -204,12 +205,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // Force WebView to wake up from background
             bridgeVC.bridge?.webView?.becomeFirstResponder()
             
-            bridgeVC.bridge?.webView?.evaluateJavaScript(js, completionHandler: { _, error in
-                if let error = error {
-                    print("GIGI: [HACK] ERROR evaluateJavaScript: \(error)")
-                } else {
-                    print("GIGI: [HACK] JS Event OpenGigiGhostMode sent successfully to WebView!")
-                }
+            bridgeVC.bridge?.webView?.evaluateJavaScript(js, completionHandler: { _, _ in
+                print("GIGI: [HACK] JS Event Injected")
             })
         } else {
             print("GIGI: [HACK] ERROR: Unable to find Capacitor WebView (bridge broken or not initialized).")
@@ -276,6 +273,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // iOS abstraction prevents true manual DMA from user-space, but SNAudioStreamAnalyzer
         // is Apple's optimized path to minimize latency (<10ms) and power consumption.
         inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { [weak self] (buffer, when) in
+            // Fallback VAD: Calculate RMS volume
+            guard let channelData = buffer.floatChannelData?[0] else { return }
+            let frameLength = Int(buffer.frameLength)
+            var sum: Float = 0
+            for i in 0..<frameLength {
+                sum += channelData[i] * channelData[i]
+            }
+            let rms = sqrt(sum / Float(frameLength))
+            
+            // If volume exceeds a threshold, print a log (Fallback VAD)
+            if rms > 0.05 {
+                print("GIGI: [VOICE] Sound detected (RMS: \(rms))")
+            }
+            
             self?.aneQueue.async {
                 self?.streamAnalyzer?.analyze(buffer, atAudioFramePosition: when.sampleTime)
             }
