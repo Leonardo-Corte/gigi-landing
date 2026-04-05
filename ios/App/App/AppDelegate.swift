@@ -29,48 +29,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     /// Process-level activity: reduces idle system sleep while GIGI is running.
     private var phantomProcessActivity: NSObjectProtocol?
 
-    // MARK: - Lock button (Darwin) debounce
-    /// Anti-bounce debounce between consecutive Darwin notifications.
-    private static let lockButtonDebounceInterval: TimeInterval = 0.01
-    /// After this delay without a "long" pattern, we classify it as a single press (screen lock).
-    private static let lockButtonSinglePressSettle: TimeInterval = 0.48
-    /// Two pulses separated by at least this interval ⇒ hold / wake up GIGI.
-    private static let lockButtonLongPressMinSpan: TimeInterval = 0.38
-    /// Maximum window to consider pulses as part of the same gesture.
-    private static let lockButtonGestureWindow: TimeInterval = 1.6
-    /// Prolonged hold: many close pulses (Springboard often repeats while the button is down).
-    private static let lockButtonLongPressMinPulseCount = 3
-
-    private var lastLockButtonDebounced: TimeInterval = 0
-    private var lockButtonPulseTimes: [TimeInterval] = []
-    private var lockButtonSinglePressWorkItem: DispatchWorkItem?
-
-    private static let lockButtonDarwinName: CFString = "com.apple.springboard.lockbutton" as CFString
-    private static let volumeUpDarwinName: CFString = "com.apple.springboard.volumebutton" as CFString
-
-    private static let lockButtonDarwinCallback: CFNotificationCallback = { _, observer, _, _, _ in
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-        print("GIGI: [HACK] Button Pulse Detected")
-        print("GIGI: [HACK] Received raw Darwin signal (com.apple.springboard.lockbutton or volumebutton)")
-        guard let raw = observer else { return }
-        let app = Unmanaged<AppDelegate>.fromOpaque(raw).takeUnretainedValue()
-        DispatchQueue.main.async {
-            app.processLockButtonDarwinPulse()
-        }
-    }
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        // 1. SETUP AUDIO
+        // 1. SETUP SYSTEM OVERLAY MODE & TRANSPARENCY
+        setupSystemOverlayMode()
+        
+        // 2. SETUP AUDIO
         setupAudioSession()
         startPhantomProcessActivity()
         startPhantomHeartbeat()
         
-        // 2. SETUP MIC (ANE Hardware-level VAD)
+        // 3. SETUP MIC (ANE Hardware-level VAD)
         setupNeuralVoiceActivation()
-        
-        // 3. IL CRACK (Intercettazione Tasto Fisico)
-        setupPhysicalButtonHack()
         
         // 4. Local Execution Engine (LEE)
         setupLocalExecutionEngine()
@@ -84,13 +54,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ProcessInfo.processInfo.endActivity(activity)
             phantomProcessActivity = nil
         }
-        let center = CFNotificationCenterGetDarwinNotifyCenter()
-        CFNotificationCenterRemoveObserver(
-            center,
-            Unmanaged.passUnretained(self).toOpaque(),
-            CFNotificationName(Self.lockButtonDarwinName as CFString),
-            nil
-        )
+    }
+
+    // MARK: - System Overlay Mode
+
+    private func setupSystemOverlayMode() {
+        DispatchQueue.main.async {
+            if let window = self.window {
+                window.windowLevel = .statusBar + 1
+                window.backgroundColor = .clear
+                window.isOpaque = false
+            }
+            
+            if let bridgeVC = self.capacitorBridgeViewController() {
+                bridgeVC.view.backgroundColor = .clear
+                bridgeVC.view.isOpaque = false
+                bridgeVC.bridge?.webView?.backgroundColor = .clear
+                bridgeVC.bridge?.webView?.isOpaque = false
+                bridgeVC.bridge?.webView?.scrollView.backgroundColor = .clear
+            }
+            print("GIGI: System Overlay Mode ACTIVE (windowLevel = .statusBar + 1, transparent background).")
+        }
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // When launched via MDM Side Button mapping, trigger the Ghost Mode UI
+        triggerGhostMode()
     }
 
     // MARK: - Phantom Heartbeat (Priority / keep-alive)
@@ -128,50 +117,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // silent.mp3 has been removed in favor of hardware ANE monitoring.
     }
 
-    // --- NERVOUS SYSTEM: PHYSICAL BUTTON (Darwin → Capacitor WebView) ---
-    func setupPhysicalButtonHack() {
-        let center = CFNotificationCenterGetDarwinNotifyCenter()
-        CFNotificationCenterAddObserver(
-            center,
-            Unmanaged.passUnretained(self).toOpaque(),
-            Self.lockButtonDarwinCallback,
-            Self.lockButtonDarwinName,
-            nil,
-            .deliverImmediately
-        )
-        // Fallback: Volume Button
-        CFNotificationCenterAddObserver(
-            center,
-            Unmanaged.passUnretained(self).toOpaque(),
-            Self.lockButtonDarwinCallback,
-            Self.volumeUpDarwinName,
-            nil,
-            .deliverImmediately
-        )
-        print("GIGI: Darwin listener com.apple.springboard.lockbutton and volumebutton ACTIVE (single vs long press debounce).")
-    }
-
-    /// Called on the main queue: classifies single press (lock) vs long press (Ghost Mode).
-    private func processLockButtonDarwinPulse() {
-        let t = ProcessInfo.processInfo.systemUptime
-        
-        // TOTAL WAKE-UP: Force trigger immediately on ANY pulse
-        print("GIGI: [HACK] Valid pulse registered at time \(t) - FORCING WAKE-UP")
-        triggerOpenGigiGhostModeFromHardware()
-    }
-
-    private func lockButtonGestureIsLongPress() -> Bool {
-        let times = lockButtonPulseTimes
-        guard times.count >= 2 else { return false }
-        if times.count >= Self.lockButtonLongPressMinPulseCount {
-            return true
-        }
-        let span = times[times.count - 1] - times[0]
-        return span >= Self.lockButtonLongPressMinSpan
-    }
-
     /// Hardware → React bridge: DOM event on the Capacitor WebView.
-    func triggerOpenGigiGhostModeFromHardware() {
+    func triggerGhostMode() {
         print("GIGI: [HACK] Preparing to launch Ghost Mode...")
         AudioServicesPlaySystemSound(1519)
         NotificationCenter.default.post(name: NSNotification.Name("OpenGigiGhostMode"), object: nil)
@@ -459,7 +406,7 @@ class GIGIWakeWordObserver: NSObject, SNResultsObserving {
             print("GIGI: [ANE] Acoustic signature detected! Estimated latency < 10ms.")
             
             DispatchQueue.main.async {
-                self.appDelegate?.triggerOpenGigiGhostModeFromHardware()
+                self.appDelegate?.triggerGhostMode()
             }
         }
     }
