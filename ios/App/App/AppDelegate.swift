@@ -31,7 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Lock button (Darwin) debounce
     /// Anti-bounce debounce between consecutive Darwin notifications.
-    private static let lockButtonDebounceInterval: TimeInterval = 0.05
+    private static let lockButtonDebounceInterval: TimeInterval = 0.01
     /// After this delay without a "long" pattern, we classify it as a single press (screen lock).
     private static let lockButtonSinglePressSettle: TimeInterval = 0.48
     /// Two pulses separated by at least this interval ⇒ hold / wake up GIGI.
@@ -46,10 +46,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var lockButtonSinglePressWorkItem: DispatchWorkItem?
 
     private static let lockButtonDarwinName: CFString = "com.apple.springboard.lockbutton" as CFString
+    private static let volumeUpDarwinName: CFString = "com.apple.springboard.volumebutton" as CFString
 
     private static let lockButtonDarwinCallback: CFNotificationCallback = { _, observer, _, _, _ in
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
         print("GIGI: [HACK] Button Pulse Detected")
-        print("GIGI: [HACK] Received raw Darwin signal (com.apple.springboard.lockbutton)")
+        print("GIGI: [HACK] Received raw Darwin signal (com.apple.springboard.lockbutton or volumebutton)")
         guard let raw = observer else { return }
         let app = Unmanaged<AppDelegate>.fromOpaque(raw).takeUnretainedValue()
         DispatchQueue.main.async {
@@ -137,48 +139,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             nil,
             .deliverImmediately
         )
-        print("GIGI: Darwin listener com.apple.springboard.lockbutton ACTIVE (single vs long press debounce).")
+        // Fallback: Volume Button
+        CFNotificationCenterAddObserver(
+            center,
+            Unmanaged.passUnretained(self).toOpaque(),
+            Self.lockButtonDarwinCallback,
+            Self.volumeUpDarwinName,
+            nil,
+            .deliverImmediately
+        )
+        print("GIGI: Darwin listener com.apple.springboard.lockbutton and volumebutton ACTIVE (single vs long press debounce).")
     }
 
     /// Called on the main queue: classifies single press (lock) vs long press (Ghost Mode).
     private func processLockButtonDarwinPulse() {
         let t = ProcessInfo.processInfo.systemUptime
-        if t - lastLockButtonDebounced < Self.lockButtonDebounceInterval {
-            print("GIGI: [HACK] Pulse ignored (bounce too fast)")
-            return
-        }
-        lastLockButtonDebounced = t
-
-        print("GIGI: [HACK] Valid pulse registered at time \(t)")
-
-        lockButtonPulseTimes.append(t)
-        lockButtonPulseTimes = lockButtonPulseTimes.filter { t - $0 <= Self.lockButtonGestureWindow }
-
-        print("GIGI: [HACK] Current window: \(lockButtonPulseTimes.count) active pulses")
-
-        lockButtonSinglePressWorkItem?.cancel()
-
-        if lockButtonGestureIsLongPress() {
-            print("GIGI: [HACK] Immediate Long Press detected!")
-            lockButtonPulseTimes.removeAll()
-            lockButtonSinglePressWorkItem = nil
-            triggerOpenGigiGhostModeFromHardware()
-            return
-        }
-
-        let work = DispatchWorkItem { [weak self] in
-            guard let self = self else { return }
-            if self.lockButtonGestureIsLongPress() {
-                print("GIGI: [HACK] Deferred Long Press detected!")
-                self.triggerOpenGigiGhostModeFromHardware()
-            } else {
-                print("GIGI: [LOCK] Single press detected — normal screen lock. Ghost Mode NOT invoked.")
-            }
-            self.lockButtonPulseTimes.removeAll()
-            self.lockButtonSinglePressWorkItem = nil
-        }
-        lockButtonSinglePressWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.lockButtonSinglePressSettle, execute: work)
+        
+        // TOTAL WAKE-UP: Force trigger immediately on ANY pulse
+        print("GIGI: [HACK] Valid pulse registered at time \(t) - FORCING WAKE-UP")
+        triggerOpenGigiGhostModeFromHardware()
     }
 
     private func lockButtonGestureIsLongPress() -> Bool {
