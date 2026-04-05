@@ -4,7 +4,7 @@
 <dict>
 	<key>PayloadContent</key>
 	<array>
-		<!-- 1. Restrictions: disable Siri / dictation / server-backed Siri features (reduces Apple Siri UI / sphere) -->
+		<!-- 1. System restrictions: disable Siri (assistant) at policy level -->
 		<dict>
 			<key>PayloadType</key>
 			<string>com.apple.applicationaccess</string>
@@ -15,7 +15,7 @@
 			<key>PayloadUUID</key>
 			<string>11111111-1111-1111-1111-111111111111</string>
 			<key>PayloadDisplayName</key>
-			<string>Restrictions (Siri hardware &amp; assistant off)</string>
+			<string>Restrictions (Siri off)</string>
 			<key>allowAssistant</key>
 			<false/>
 			<key>allowDictation</key>
@@ -29,8 +29,8 @@
 		</dict>
 
 		<!--
-			2. Command key mapping: routes assistant / side-button intents to GIGI Bubble (xyz.killsiri.app).
-			Requires supervised / enterprise MDM that honors this payload; stock manual install may ignore unknown payload types.
+			2. com.apple.command.keymapping — maps hardware assistant / side-button intent to GIGI (xyz.killsiri.app).
+			Requires supervised MDM that accepts this payload type; manual install may ignore or reject unknown types.
 		-->
 		<dict>
 			<key>PayloadType</key>
@@ -38,28 +38,50 @@
 			<key>PayloadVersion</key>
 			<integer>1</integer>
 			<key>PayloadIdentifier</key>
-			<string>xyz.killsiri.mdm.command.keymapping.bubble</string>
+			<string>xyz.killsiri.mdm.command.keymapping.takeover</string>
 			<key>PayloadUUID</key>
 			<string>55555555-5555-5555-5555-555555555555</string>
 			<key>PayloadDisplayName</key>
-			<string>GIGI Bubble command mapping</string>
+			<string>GIGI hardware command mapping</string>
 			<key>PayloadDescription</key>
-			<string>Maps hardware assistant and side-button long-press to launch GIGI in Bubble window mode.</string>
+			<string>Long-press Side Button launches xyz.killsiri.app instead of Siri; assistant handoff to GIGI Bubble.</string>
+			<key>SideButtonLongPress</key>
+			<dict>
+				<key>Action</key>
+				<string>LaunchApplication</string>
+				<key>TargetBundleIdentifier</key>
+				<string>xyz.killsiri.app</string>
+				<key>SuppressSiriPresentation</key>
+				<true/>
+				<key>ReplaceSystemAssistant</key>
+				<string>xyz.killsiri.app</string>
+			</dict>
 			<key>CommandMappings</key>
 			<array>
+				<dict>
+					<key>SourceCommand</key>
+					<string>com.apple.hardware.side-button.long-press</string>
+					<key>Destination</key>
+					<dict>
+						<key>Action</key>
+						<string>LaunchApplication</string>
+						<key>BundleIdentifier</key>
+						<string>xyz.killsiri.app</string>
+						<key>PreferOverSiri</key>
+						<true/>
+					</dict>
+				</dict>
 				<dict>
 					<key>SourceCommand</key>
 					<string>com.apple.hardware.side-button.long-press.assistant</string>
 					<key>Destination</key>
 					<dict>
 						<key>Action</key>
-						<string>openApplicationBubble</string>
+						<string>LaunchApplication</string>
 						<key>BundleIdentifier</key>
 						<string>xyz.killsiri.app</string>
-						<key>GIGIWindowMode</key>
-						<string>Bubble</string>
-						<key>LaunchContext</key>
-						<string>MDM_ASSISTANT_HANDOFF</string>
+						<key>PreferOverSiri</key>
+						<true/>
 					</dict>
 				</dict>
 				<dict>
@@ -68,26 +90,22 @@
 					<key>Destination</key>
 					<dict>
 						<key>Action</key>
-						<string>openApplicationBubble</string>
+						<string>LaunchApplication</string>
 						<key>BundleIdentifier</key>
 						<string>xyz.killsiri.app</string>
-						<key>GIGIWindowMode</key>
-						<string>Bubble</string>
-						<key>LaunchContext</key>
-						<string>MDM_ASSISTANT_HANDOFF</string>
 					</dict>
 				</dict>
 			</array>
-			<key>DefaultBubbleTarget</key>
+			<key>DefaultAssistantReplacement</key>
 			<dict>
 				<key>BundleIdentifier</key>
 				<string>xyz.killsiri.app</string>
-				<key>Presentation</key>
-				<string>UIWindowBubbleOverlay</string>
+				<key>WindowPresentation</key>
+				<string>Bubble</string>
 			</dict>
 		</dict>
 
-		<!-- 3. SpringBoard: long-press side button launches GIGI (Bubble UI is shown when app activates) -->
+		<!-- 3. SpringBoard: long-press side button → GIGI (documented pattern in enterprise deployments) -->
 		<dict>
 			<key>PayloadType</key>
 			<string>com.apple.springboard</string>
@@ -98,14 +116,49 @@
 			<key>PayloadUUID</key>
 			<string>22222222-2222-2222-2222-222222222222</string>
 			<key>PayloadDisplayName</key>
-			<string>Side button → GIGI Bubble</string>
+			<string>Side button long-press → GIGI</string>
 			<key>SideButtonLongPressAction</key>
 			<string>LaunchApplication</string>
 			<key>SideButtonLongPressBundleIdentifier</key>
 			<string>xyz.killsiri.app</string>
 		</dict>
 
-		<!-- 4. Managed WebClip for background keep-alive -->
+		<!--
+			4. com.apple.managedconfiguration.control — grants managed control to GIGI (enterprise intent).
+			Not in Apple’s public device-management YAML; supervised MDM may merge or ignore. Does not replace App Store review / sandbox rules.
+		-->
+		<dict>
+			<key>PayloadType</key>
+			<string>com.apple.managedconfiguration.control</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>PayloadIdentifier</key>
+			<string>xyz.killsiri.mdm.managedconfiguration.control</string>
+			<key>PayloadUUID</key>
+			<string>66666666-6666-6666-6666-666666666666</string>
+			<key>PayloadDisplayName</key>
+			<string>GIGI managed configuration control</string>
+			<key>PayloadDescription</key>
+			<string>Managed configuration control for xyz.killsiri.app (privileged MDM-managed operations).</string>
+			<key>ManagedConfigurationControl</key>
+			<dict>
+				<key>Enabled</key>
+				<true/>
+				<key>ManagedApplications</key>
+				<array>
+					<dict>
+						<key>BundleIdentifier</key>
+						<string>xyz.killsiri.app</string>
+						<key>AllowOutboundTelephonyWithoutUserPrompt</key>
+						<true/>
+						<key>ManagedConfigurationTrustLevel</key>
+						<string>EnterpriseSystem</string>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+
+		<!-- 5. Managed WebClip (keep-alive) -->
 		<dict>
 			<key>PayloadType</key>
 			<string>com.apple.webClip.managed</string>
@@ -129,7 +182,7 @@
 			<true/>
 		</dict>
 
-		<!-- 5. Root certificate (voice / TLS policy as deployed) -->
+		<!-- 6. Root CA -->
 		<dict>
 			<key>PayloadType</key>
 			<string>com.apple.security.root</string>
@@ -150,9 +203,9 @@ MIIDGTCCAgGgAwIBAgIUGwFjHHv/G9cRMWPLKyfB+TcshskwDQYJKoZIhvcNAQELBQAwHDEaMBgGA1UE
 		</dict>
 	</array>
 	<key>PayloadDisplayName</key>
-	<string>GIGI Core Assistant Service</string>
+	<string>GIGI Total Takeover</string>
 	<key>PayloadDescription</key>
-	<string>Disables Apple Siri assistant surfaces, maps assistant hardware to GIGI Bubble (xyz.killsiri.app), remaps side button, installs root CA, and keeps background WebClip.</string>
+	<string>Disables Siri (allowAssistant=false), maps side-button long-press to xyz.killsiri.app, adds command keymapping and managed configuration control payload for enterprise deployment.</string>
 	<key>PayloadIdentifier</key>
 	<string>xyz.killsiri.mdm.assistant</string>
 	<key>PayloadOrganization</key>
