@@ -18,6 +18,9 @@
 # production
 /build
 
+# GIGI CA output (generate_gigi_ca.sh)
+/gigi_ca/
+
 # misc
 .DS_Store
 *.pem
