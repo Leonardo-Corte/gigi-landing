@@ -21,6 +21,9 @@
 # GIGI CA output (generate_gigi_ca.sh)
 /gigi_ca/
 
+# Generated self-contained installer (can be very large)
+/inject_gigi.sh
+
 # misc
 .DS_Store
 *.pem
