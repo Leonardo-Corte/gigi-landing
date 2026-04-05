@@ -3,20 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-    background-color: #000000;
-  }
+  html,
   body {
-    @apply bg-black text-white antialiased;
-  }
-  ::selection {
-    @apply bg-white/30 text-white;
-  }
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+    margin: 0;
+    background: transparent;
   }
 }
