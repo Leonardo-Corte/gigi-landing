@@ -60,11 +60,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func setupSystemOverlayMode() {
         DispatchQueue.main.async {
-            if let window = self.window {
-                window.windowLevel = .statusBar + 1
-                window.backgroundColor = .clear
-                window.isOpaque = false
-            }
+            guard let window = self.window else { return }
+            
+            // Get screen bounds to position the bubble
+            let screenBounds = UIScreen.main.bounds
+            let bubbleSize: CGFloat = 100.0
+            let bottomPadding: CGFloat = 50.0
+            
+            // Set the window frame to be a 100x100 square centered at the bottom
+            window.frame = CGRect(
+                x: (screenBounds.width - bubbleSize) / 2.0,
+                y: screenBounds.height - bubbleSize - bottomPadding,
+                width: bubbleSize,
+                height: bubbleSize
+            )
+            
+            // Make it a perfect circle
+            window.layer.cornerRadius = bubbleSize / 2.0
+            window.clipsToBounds = true
+            
+            // Overlay settings
+            window.windowLevel = .statusBar + 1
+            window.backgroundColor = .clear
+            window.isOpaque = false
+            
+            // Initially hide the window (it will pop up when triggered)
+            window.alpha = 0.0
+            window.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             
             if let bridgeVC = self.capacitorBridgeViewController() {
                 bridgeVC.view.backgroundColor = .clear
@@ -73,7 +95,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 bridgeVC.bridge?.webView?.isOpaque = false
                 bridgeVC.bridge?.webView?.scrollView.backgroundColor = .clear
             }
-            print("GIGI: System Overlay Mode ACTIVE (windowLevel = .statusBar + 1, transparent background).")
+            print("GIGI: System Overlay Mode ACTIVE (Bubble Mode: 100x100, cornerRadius 50, hidden initially).")
         }
     }
 
@@ -119,9 +141,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     /// Hardware → React bridge: DOM event on the Capacitor WebView.
     func triggerGhostMode() {
-        print("GIGI: [HACK] Preparing to launch Ghost Mode...")
+        print("GIGI: [HACK] Preparing to launch Ghost Mode Bubble...")
         AudioServicesPlaySystemSound(1519)
         NotificationCenter.default.post(name: NSNotification.Name("OpenGigiGhostMode"), object: nil)
+        
+        // Show the bubble with a smooth pop-up animation
+        DispatchQueue.main.async {
+            guard let window = self.window else { return }
+            
+            // Ensure the window is visible and on top
+            window.makeKeyAndVisible()
+            
+            UIView.animate(withDuration: 0.6,
+                           delay: 0,
+                           usingSpringWithDamping: 0.6,
+                           initialSpringVelocity: 0.8,
+                           options: .curveEaseOut,
+                           animations: {
+                window.alpha = 1.0
+                window.transform = .identity
+            }, completion: nil)
+        }
         
         let js = "window.focus(); window.dispatchEvent(new CustomEvent('OpenGigiGhostMode'));"
         print("GIGI: Attempting to trigger UI via evaluateJavaScript...")
