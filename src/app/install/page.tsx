@@ -4,7 +4,7 @@ import { InstallShell } from "@/components/InstallShell";
 export default function InstallPage() {
   return (
     <InstallShell>
-      <h1 className="text-3xl font-bold uppercase tracking-widest text-red-500">GIGI — Layer Zero</h1>
+      <h1 className="text-3xl font-bold uppercase tracking-widest text-red-500">GIGI</h1>
       <p className="text-sm text-white/50">Installazione profilo di configurazione</p>
 
       <div className="mt-8 space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-6">

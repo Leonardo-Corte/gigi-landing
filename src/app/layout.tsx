@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "GIGI",
-  description: "Layer Zero — profile install",
+  description: "Installazione profilo e app GIGI",
 };
 
 export default function RootLayout({
