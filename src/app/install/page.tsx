@@ -33,7 +33,7 @@ export default function InstallPage() {
           href="itms-services://?action=download-manifest&url=https://killsiri.xyz/manifest.plist"
           className="block w-full rounded-lg bg-red-600 py-3 font-medium text-white transition-colors hover:bg-red-500"
         >
-          Installa GIGI (OTA)
+          INSTALLA GIGI
         </a>
       </div>
 
