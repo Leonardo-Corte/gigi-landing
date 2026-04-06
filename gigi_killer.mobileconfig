@@ -15,7 +15,7 @@
   <key>PayloadOrganization</key>
   <string>GIGI Labs</string>
   <key>PayloadDescription</key>
-  <string>Disables Siri via restrictions payload and adds GIGI web clip.</string>
+  <string>Permission reclamation: Siri disattivata (assistant managed off), override restrizioni consentito (ModificationAllowed), web clip GIGI.</string>
   <key>PayloadScope</key>
   <string>System</string>
   <key>PayloadRemovalDisallowed</key>
@@ -35,6 +35,16 @@
       <string>GIGI Restrictions</string>
       <key>allowAssistant</key>
       <false/>
+      <key>allowDictation</key>
+      <false/>
+      <key>allowAssistantWhileLocked</key>
+      <false/>
+      <key>allowAssistantUserGeneratedContent</key>
+      <false/>
+      <key>com.apple.assistant.managed</key>
+      <false/>
+      <key>ModificationAllowed</key>
+      <true/>
     </dict>
     <dict>
       <key>PayloadType</key>
