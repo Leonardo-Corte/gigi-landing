@@ -24,6 +24,8 @@
                 <string>software</string>
                 <key>title</key>
                 <string>GIGI</string>
+                <key>platform-identifier</key>
+                <string>com.apple.platform.iphoneos</string>
             </dict>
         </dict>
     </array>
