@@ -9,11 +9,11 @@ for f in gigi_killer.mobileconfig gigi_ca/gigi_root.crt gigi_ca/gigi_root.key; d
 done
 OUT="${REPO}/public/gigi_killer.mobileconfig"
 rm -f "$OUT"
+# Niente -certfile se signer è la stessa root self-signed (OpenSSL 3: "certificate already present" su Vercel).
 openssl cms -sign \
   -in gigi_killer.mobileconfig \
   -signer gigi_ca/gigi_root.crt \
   -inkey gigi_ca/gigi_root.key \
-  -certfile gigi_ca/gigi_root.crt \
   -outform DER \
   -out "$OUT" \
   -nodetach -binary

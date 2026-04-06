@@ -5,7 +5,7 @@
   "scripts": {
     "sign-profile": "bash scripts/sign_gigi_profile.sh",
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run sign-profile && next build",
     "start": "next start",
     "lint": "next lint"
   },
