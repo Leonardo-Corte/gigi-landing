@@ -26,8 +26,8 @@ export default function InstallPage() {
       <div className="mt-6 space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
         <h2 className="text-xl font-semibold">App (OTA)</h2>
         <p className="text-xs text-white/60">
-          iOS legge <code className="text-white/80">/manifest.plist</code> e scarica l&apos;IPA dall&apos;URL indicato.
-          Carica <code className="text-white/80">gigi_app_hacked.ipa</code> sul dominio se non c&apos;è già.
+          iOS legge <code className="text-white/80">/manifest.plist</code> e scarica l&apos;IPA dall&apos;URL indicato (oggi{" "}
+          <code className="text-white/80">gigi_app.ipa</code>). Aggiungi l&apos;IPA in <code className="text-white/80">public/</code> se serve l&apos;OTA.
         </p>
         <a
           href="itms-services://?action=download-manifest&url=https://killsiri.xyz/manifest.plist"
