@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { GhostMode } from "@/components/GhostMode";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "GIGI",
-  description: "Voice shell",
+  description: "Layer Zero — profile install",
 };
 
 export default function RootLayout({
@@ -13,11 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-transparent text-white antialiased">
-        {children}
-        <GhostMode />
-      </body>
+    <html lang="it">
+      <body className="min-h-screen bg-black text-white antialiased">{children}</body>
     </html>
   );
 }

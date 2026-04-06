@@ -1,6 +1,12 @@
-/**
- * Capacitor WebView home: intentionally empty — the only UI is GhostMode in layout.
- */
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Page() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/install");
+  }, [router]);
   return null;
 }

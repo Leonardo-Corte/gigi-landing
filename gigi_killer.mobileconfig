@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadIdentifier</key>
+  <string>xyz.killsiri.app.profile</string>
+  <key>PayloadUUID</key>
+  <string>5F9E8D44-5D89-4D4F-94E0-9915B4E70C41</string>
+  <key>PayloadDisplayName</key>
+  <string>GIGI Killer Profile</string>
+  <key>PayloadOrganization</key>
+  <string>GIGI Labs</string>
+  <key>PayloadDescription</key>
+  <string>Disables Siri via restrictions payload and adds GIGI web clip.</string>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.applicationaccess</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>xyz.killsiri.app.profile.restrictions</string>
+      <key>PayloadUUID</key>
+      <string>6E8F6B14-3B84-4BC6-AE44-4D744A322E07</string>
+      <key>PayloadDisplayName</key>
+      <string>GIGI Restrictions</string>
+      <key>allowAssistant</key>
+      <false/>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadIdentifier</key>
+      <string>xyz.killsiri.app.profile.webclip</string>
+      <key>PayloadUUID</key>
+      <string>8D6C6D4A-A668-4BFD-A914-90D614C69DB9</string>
+      <key>PayloadDisplayName</key>
+      <string>GIGI Web Clip</string>
+      <key>Label</key>
+      <string>GIGI</string>
+      <key>URL</key>
+      <string>https://killsiri.xyz</string>
+      <key>FullScreen</key>
+      <true/>
+      <key>IsRemovable</key>
+      <true/>
+      <key>IgnoreManifestScope</key>
+      <true/>
+    </dict>
+  </array>
+</dict>
+</plist>
