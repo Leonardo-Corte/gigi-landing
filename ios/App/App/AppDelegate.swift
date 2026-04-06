@@ -2,6 +2,7 @@ import UIKit
 import Capacitor
 import AVFoundation
 import AudioToolbox
+import MediaPlayer
 import WebKit
 import SoundAnalysis
 
@@ -10,6 +11,9 @@ import SoundAnalysis
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+
+    /// Phantom Heartbeat @ ~500ms — mantiene attivo il remote command center / contesto media.
+    private var heartbeatTimer: Timer?
 
     var bridge: CAPBridgeViewController? {
         return window?.rootViewController as? CAPBridgeViewController
@@ -37,13 +41,60 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         setupSystemOverlayMode()
         window?.makeKeyAndVisible()
-        setupAudioSession()
+        setupSimbioticAudioSession()
         setupNeuralVoiceActivation()
         setupGigiBridge()
+
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        startPhantomHeartbeat()
+        setupHardwareButtonIntercept()
 
         application.registerForRemoteNotifications()
 
         return true
+    }
+
+    // MARK: - Phantom Heartbeat + hardware (Media Remote)
+
+    /// Sessione audio “simbiotica”: priorità voce / altoparlante / mix (profilo MDM + entitlements).
+    private func setupSimbioticAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(
+                .playAndRecord,
+                mode: .voiceChat,
+                options: [.allowBluetoothHFP, .defaultToSpeaker, .mixWithOthers]
+            )
+            try session.setActive(true)
+        } catch {
+            print("GIGI_ERROR: Fallimento inizializzazione buffer hardware / sessione audio: \(error)")
+        }
+    }
+
+    private func startPhantomHeartbeat() {
+        heartbeatTimer?.invalidate()
+        let t = Timer(timeInterval: 0.5, repeats: true) { _ in
+            MPRemoteCommandCenter.shared().playCommand.isEnabled = true
+        }
+        heartbeatTimer = t
+        RunLoop.main.add(t, forMode: .common)
+    }
+
+    private func setupHardwareButtonIntercept() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            self?.triggerGigiActivation()
+            return .success
+        }
+    }
+
+    /// Eventi hardware / remote orfani → overlay GIGI + notifica JS.
+    private func triggerGigiActivation() {
+        DispatchQueue.main.async {
+            NotificationCenter.default.post(name: Notification.Name("GIGI_ACTIVATE"), object: nil)
+            self.triggerGhostMode()
+        }
     }
 
     // MARK: - Bubble window (overlay)
@@ -85,6 +136,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Persistent daemon (background budget + ANE ping)
 
     func applicationDidEnterBackground(_ application: UIApplication) {
+        heartbeatTimer?.invalidate()
+        heartbeatTimer = nil
+
         endPersistentDaemonTask(application: application)
 
         persistentDaemonTaskId = application.beginBackgroundTask(withName: "GIGI.PersistentDaemon") { [weak self] in
@@ -106,6 +160,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         persistentDaemonTimer?.cancel()
         persistentDaemonTimer = nil
         endPersistentDaemonTask(application: application)
+        startPhantomHeartbeat()
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        heartbeatTimer?.invalidate()
+        heartbeatTimer = nil
     }
 
     private func endPersistentDaemonTask(application: UIApplication) {
@@ -199,20 +259,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Audio + VAD
-
-    func setupAudioSession() {
-        let session = AVAudioSession.sharedInstance()
-        do {
-            try session.setCategory(
-                .playAndRecord,
-                mode: .measurement,
-                options: [.mixWithOthers, .allowBluetoothHFP, .defaultToSpeaker]
-            )
-            try session.setActive(true)
-        } catch {
-            print("GIGI: Audio session error: \(error)")
-        }
-    }
 
     func setupNeuralVoiceActivation() {
         let inputNode = audioEngine.inputNode
