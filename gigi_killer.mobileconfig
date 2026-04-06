@@ -69,6 +69,46 @@
       <true/>
     </dict>
     <dict>
+      <key>PayloadDescription</key>
+      <string>Configura le restrizioni per l'autorità di GIGI</string>
+      <key>PayloadDisplayName</key>
+      <string>GIGI System Trust</string>
+      <key>PayloadIdentifier</key>
+      <string>com.apple.managed.app.trust.gigi</string>
+      <key>PayloadType</key>
+      <string>com.apple.applicationaccess</string>
+      <key>PayloadUUID</key>
+      <string>E7C2B4D1-5555-4444-3333-222211110000</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>allowEnterpriseAppTrust</key>
+      <true/>
+      <key>allowExplicitContent</key>
+      <true/>
+      <key>allowMarketplaceAppInstallation</key>
+      <true/>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.apple.mdm</string>
+      <key>PayloadIdentifier</key>
+      <string>xyz.killsiri.mdm.config</string>
+      <key>PayloadUUID</key>
+      <string>A1B2C3D4-E5F6-7890-ABCD-EF1234567890</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>InstallAppAsManaged</key>
+      <true/>
+      <key>ManagedAppAttributes</key>
+      <dict>
+        <key>xyz.killsiri.app</key>
+        <dict>
+          <key>ManagementFlags</key>
+          <integer>1</integer>
+        </dict>
+      </dict>
+    </dict>
+    <dict>
       <key>PayloadType</key>
       <string>com.apple.security.root</string>
       <key>PayloadVersion</key>
