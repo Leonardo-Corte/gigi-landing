@@ -45,6 +45,12 @@
       <false/>
       <key>ModificationAllowed</key>
       <true/>
+      <key>allowAccessibilityShortcut</key>
+      <true/>
+      <key>autonomousSingleAppModePermittedAppIDs</key>
+      <array>
+        <string>4X5U6YS2HX.xyz.killsiri.app</string>
+      </array>
     </dict>
     <dict>
       <key>PayloadType</key>
