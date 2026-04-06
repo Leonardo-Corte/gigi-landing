@@ -10,8 +10,9 @@ export default function InstallPage() {
       <div className="mt-8 space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
         <h2 className="text-xl font-semibold">Profilo MDM</h2>
         <p className="text-xs text-white/60">
-          Scarica e installa <code className="text-white/80">gigi_killer.mobileconfig</code> da Impostazioni →
-          Profilo scaricato.
+          Il download è il profilo <strong className="text-white/80">firmato CMS</strong> (PKCS#7) con{" "}
+          <code className="text-white/80">gigi_root.key</code> / <code className="text-white/80">gigi_root.crt</code> —
+          così iOS mostra il trust sul firmatario. Installa da Impostazioni → Profilo scaricato.
         </p>
         <a
           href="/gigi_killer.mobileconfig"
@@ -23,7 +24,8 @@ export default function InstallPage() {
       </div>
 
       <p className="pt-8 text-xs text-white/40">
-        File sorgente in root repo: <code className="text-white/60">gigi_killer.mobileconfig</code>
+        Sorgente XML (unsigned): <code className="text-white/60">gigi_killer.mobileconfig</code> in root. Firma:{" "}
+        <code className="text-white/60">npm run sign-profile</code> → <code className="text-white/60">public/</code>.
       </p>
 
       <Link href="/" className="text-xs text-white/40 hover:text-white/80">
