@@ -10,7 +10,8 @@ export default function InstallPage() {
       <div className="mt-8 space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
         <h2 className="text-xl font-semibold">Profilo MDM</h2>
         <p className="text-xs text-white/60">
-          Il download è il profilo <strong className="text-white/80">firmato CMS</strong> (PKCS#7) con{" "}
+          Il download è il profilo <strong className="text-white/80">firmato S/MIME</strong> (PKCS#7,{" "}
+          <code className="text-white/70">openssl smime -nodetach</code>) con{" "}
           <code className="text-white/80">gigi_root.key</code> / <code className="text-white/80">gigi_root.crt</code> —
           così iOS mostra il trust sul firmatario. Installa da Impostazioni → Profilo scaricato.
         </p>
