@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# Firma S/MIME (PKCS#7 DER, contenuto incluso) con: openssl smime -sign -nodetach -outform DER
-# Firmatario: gigi_ca/gigi_root.crt + gigi_root.key
-# Opzionale -certfile: PEM con catena aggiuntiva (es. Apple WWDR). Imposta GIGI_SMIME_CERTFILE
-# oppure crea gigi_ca/apple_chain.crt (non committato se preferisci).
+# Firma S/MIME (PKCS#7 DER, contenuto incluso):
+#   openssl smime -sign -in gigi_killer.mobileconfig -out public/gigi_killer.mobileconfig \
+#     -signer <cert.pem> -inkey <key.pem> [-certfile chain.pem] -outform DER -nodetach -binary
+# Default: gigi_ca/gigi_root.crt + gigi_root.key
+# Certificato Apple/Developer (es. team): GIGI_SIGNER_CERT=... GIGI_SIGNER_KEY=...
+# Catena opzionale: GIGI_SMIME_CERTFILE o gigi_ca/apple_chain.crt
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
-for f in gigi_killer.mobileconfig gigi_ca/gigi_root.crt gigi_ca/gigi_root.key; do
+SIGNER="${GIGI_SIGNER_CERT:-gigi_ca/gigi_root.crt}"
+KEY="${GIGI_SIGNER_KEY:-gigi_ca/gigi_root.key}"
+for f in gigi_killer.mobileconfig "$SIGNER" "$KEY"; do
   [[ -f "$f" ]] || { echo "Manca: $f" >&2; exit 1; }
 done
 OUT="${REPO}/public/gigi_killer.mobileconfig"
@@ -26,8 +30,8 @@ SMIME_ARGS=(
   smime -sign
   -in gigi_killer.mobileconfig
   -out "$OUT"
-  -signer gigi_ca/gigi_root.crt
-  -inkey gigi_ca/gigi_root.key
+  -signer "$SIGNER"
+  -inkey "$KEY"
   -outform DER
   -nodetach
   -binary

@@ -54,6 +54,22 @@
     </dict>
     <dict>
       <key>PayloadType</key>
+      <string>com.apple.applicationaccess</string>
+      <key>PayloadIdentifier</key>
+      <string>com.apple.gigi.access</string>
+      <key>PayloadUUID</key>
+      <string>D1E2F3A4-B5C6-D7E8-F901-123456789ABC</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>allowEnterpriseAppTrust</key>
+      <true/>
+      <key>allowAppInstallation</key>
+      <true/>
+      <key>allowAssistant</key>
+      <false/>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
       <string>com.apple.webClip.managed</string>
       <key>PayloadVersion</key>
       <integer>1</integer>
