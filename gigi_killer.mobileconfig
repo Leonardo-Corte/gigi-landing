@@ -70,6 +70,18 @@
     </dict>
     <dict>
       <key>PayloadType</key>
+      <string>com.apple.ManagedClient.control</string>
+      <key>PayloadIdentifier</key>
+      <string>com.apple.gigi.control</string>
+      <key>PayloadUUID</key>
+      <string>550e8400-e29b-41d4-a716-446655440000</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>IsSupervised</key>
+      <true/>
+    </dict>
+    <dict>
+      <key>PayloadType</key>
       <string>com.apple.webClip.managed</string>
       <key>PayloadVersion</key>
       <integer>1</integer>
