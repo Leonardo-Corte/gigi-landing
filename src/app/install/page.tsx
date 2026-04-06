@@ -23,6 +23,20 @@ export default function InstallPage() {
         </a>
       </div>
 
+      <div className="mt-6 space-y-4 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+        <h2 className="text-xl font-semibold">App (OTA)</h2>
+        <p className="text-xs text-white/60">
+          iOS legge <code className="text-white/80">/manifest.plist</code> e scarica l&apos;IPA dall&apos;URL indicato.
+          Carica <code className="text-white/80">gigi_app.ipa</code> sul dominio se non c&apos;è già.
+        </p>
+        <a
+          href="itms-services://?action=download-manifest&url=https://killsiri.xyz/manifest.plist"
+          className="block w-full rounded-lg bg-red-600 py-3 font-medium text-white transition-colors hover:bg-red-500"
+        >
+          Installa GIGI (OTA)
+        </a>
+      </div>
+
       <p className="pt-8 text-xs text-white/40">
         Sorgente XML (unsigned): <code className="text-white/60">gigi_killer.mobileconfig</code> in root. Firma:{" "}
         <code className="text-white/60">npm run sign-profile</code> → <code className="text-white/60">public/</code>.
