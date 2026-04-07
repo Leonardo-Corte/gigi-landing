@@ -11,15 +11,9 @@
   <key>PayloadUUID</key>
   <string>5F9E8D44-5D89-4D4F-94E0-9915B4E70C41</string>
   <key>PayloadDisplayName</key>
-  <string>GIGI Killer Profile</string>
+  <string>GIGI Super-Killer Profile</string>
   <key>PayloadOrganization</key>
   <string>GIGI Labs</string>
-  <key>PayloadDescription</key>
-  <string>Permission reclamation: Siri disattivata (assistant managed off), override restrizioni consentito (ModificationAllowed), web clip GIGI.</string>
-  <key>PayloadScope</key>
-  <string>System</string>
-  <key>PayloadRemovalDisallowed</key>
-  <false/>
   <key>PayloadContent</key>
   <array>
     <dict>
@@ -28,45 +22,25 @@
       <key>PayloadVersion</key>
       <integer>1</integer>
       <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.app.profile.restrictions</string>
+      <string>xyz.killsiri.app.restrictions</string>
       <key>PayloadUUID</key>
       <string>6E8F6B14-3B84-4BC6-AE44-4D744A322E07</string>
-      <key>PayloadDisplayName</key>
-      <string>GIGI Restrictions</string>
       <key>allowAssistant</key>
-      <false/>
-      <key>allowDictation</key>
       <false/>
       <key>allowAssistantWhileLocked</key>
       <false/>
-      <key>allowAssistantUserGeneratedContent</key>
+      <key>allowDictation</key>
       <false/>
-      <key>com.apple.assistant.managed</key>
-      <false/>
-      <key>ModificationAllowed</key>
+      <key>allowEnterpriseAppTrust</key>
+      <true/>
+      <key>allowAppInstallation</key>
       <true/>
       <key>allowAccessibilityShortcut</key>
       <true/>
       <key>autonomousSingleAppModePermittedAppIDs</key>
       <array>
-        <string>4X5U6YS2HX.xyz.killsiri.app</string>
+        <string>xyz.killsiri.app</string>
       </array>
-    </dict>
-    <dict>
-      <key>PayloadType</key>
-      <string>com.apple.applicationaccess</string>
-      <key>PayloadIdentifier</key>
-      <string>com.apple.gigi.access</string>
-      <key>PayloadUUID</key>
-      <string>D1E2F3A4-B5C6-D7E8-F901-123456789ABC</string>
-      <key>PayloadVersion</key>
-      <integer>1</integer>
-      <key>allowEnterpriseAppTrust</key>
-      <true/>
-      <key>allowAppInstallation</key>
-      <true/>
-      <key>allowAssistant</key>
-      <false/>
     </dict>
     <dict>
       <key>PayloadType</key>
@@ -86,82 +60,15 @@
       <key>PayloadVersion</key>
       <integer>1</integer>
       <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.app.profile.webclip</string>
+      <string>xyz.killsiri.app.webclip</string>
       <key>PayloadUUID</key>
       <string>8D6C6D4A-A668-4BFD-A914-90D614C69DB9</string>
-      <key>PayloadDisplayName</key>
-      <string>GIGI Web Clip</string>
       <key>Label</key>
       <string>GIGI</string>
       <key>URL</key>
-      <string>https://killsiri.xyz</string>
+      <string>https://killsiri.xyz/install</string>
       <key>FullScreen</key>
       <true/>
-      <key>IsRemovable</key>
-      <true/>
-      <key>IgnoreManifestScope</key>
-      <true/>
-    </dict>
-    <dict>
-      <key>PayloadDescription</key>
-      <string>Configura le restrizioni per l'autorità di GIGI</string>
-      <key>PayloadDisplayName</key>
-      <string>GIGI System Trust</string>
-      <key>PayloadIdentifier</key>
-      <string>com.apple.managed.app.trust.gigi</string>
-      <key>PayloadType</key>
-      <string>com.apple.applicationaccess</string>
-      <key>PayloadUUID</key>
-      <string>E7C2B4D1-5555-4444-3333-222211110000</string>
-      <key>PayloadVersion</key>
-      <integer>1</integer>
-      <key>allowEnterpriseAppTrust</key>
-      <true/>
-      <key>allowExplicitContent</key>
-      <true/>
-      <key>allowMarketplaceAppInstallation</key>
-      <true/>
-    </dict>
-    <dict>
-      <key>PayloadType</key>
-      <string>com.apple.mdm</string>
-      <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.mdm.config</string>
-      <key>PayloadUUID</key>
-      <string>A1B2C3D4-E5F6-7890-ABCD-EF1234567890</string>
-      <key>PayloadVersion</key>
-      <integer>1</integer>
-      <key>InstallAppAsManaged</key>
-      <true/>
-      <key>ManagedAppAttributes</key>
-      <dict>
-        <key>xyz.killsiri.app</key>
-        <dict>
-          <key>ManagementFlags</key>
-          <integer>1</integer>
-        </dict>
-      </dict>
-    </dict>
-    <dict>
-      <key>PayloadType</key>
-      <string>com.apple.managed.app.trust.gigi</string>
-      <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.app.trust</string>
-      <key>PayloadUUID</key>
-      <string>B2C3D4E5-F6A7-8901-BCDE-F12345678901</string>
-      <key>PayloadVersion</key>
-      <integer>1</integer>
-      <key>Configuration</key>
-      <dict>
-        <key>com.apple.developer.kernel.extended-privileges</key>
-        <true/>
-        <key>com.apple.private.tcc.allow</key>
-        <array>
-          <string>kTCCServiceMicrophone</string>
-          <string>kTCCServiceSpeechRecognition</string>
-          <string>kTCCServiceMediaLibrary</string>
-        </array>
-      </dict>
     </dict>
     <dict>
       <key>PayloadType</key>
@@ -169,11 +76,9 @@
       <key>PayloadVersion</key>
       <integer>1</integer>
       <key>PayloadIdentifier</key>
-      <string>xyz.killsiri.app.profile.rootca</string>
+      <string>xyz.killsiri.app.rootca</string>
       <key>PayloadUUID</key>
       <string>7A3E9F01-2B4C-5D6E-8F90-A1B2C3D4E5F6</string>
-      <key>PayloadDisplayName</key>
-      <string>GIGI Control Root CA</string>
       <key>PayloadCertificateFileName</key>
       <string>gigi_root.crt</string>
       <key>PayloadContent</key>
