@@ -93,8 +93,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func triggerGigiActivation() {
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: Notification.Name("GIGI_ACTIVATE"), object: nil)
-            self.triggerGhostMode()
+            self.triggerGigiAwake()
+            self.presentGigiGhostOverlay()
         }
+    }
+
+    /// Hook tasto laterale / Remote Command: haptic + log (overlay separato per evitare doppio 1519).
+    private func triggerGigiAwake() {
+        AudioServicesPlaySystemSound(1519)
+        print("GIGI: Sistema svegliato dal tasto laterale")
     }
 
     // MARK: - Bubble window (overlay)
@@ -222,6 +229,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func triggerGhostMode() {
         AudioServicesPlaySystemSound(1519)
+        presentGigiGhostOverlay()
+    }
+
+    /// Mostra bubble + evento JS (usato da push, VAD, foreground e dopo `triggerGigiAwake`).
+    private func presentGigiGhostOverlay() {
         NotificationCenter.default.post(name: NSNotification.Name("OpenGigiGhostMode"), object: nil)
 
         DispatchQueue.main.async {
