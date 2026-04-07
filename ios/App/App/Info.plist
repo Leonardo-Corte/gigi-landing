@@ -70,5 +70,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>siri</string>
+		<string>assistant</string>
+	</array>
 </dict>
 </plist>
